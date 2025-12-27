@@ -11,17 +11,11 @@ def init_mgmt_db():
                       (id INTEGER PRIMARY KEY AUTOINCREMENT, db_name TEXT UNIQUE, file_path TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS user_permissions 
                       (username TEXT, db_name TEXT, PRIMARY KEY (username, db_name))''')
-    # 默认添加 Northwind (如果文件已存在)
-    if os.path.exists("data/northwind_small.sqlite"):
-        cursor.execute("INSERT OR IGNORE INTO databases (db_name, file_path) VALUES (?, ?)", 
-                      ("northwind", "data/northwind_small.sqlite"))
-        cursor.execute("INSERT OR IGNORE INTO user_permissions (username, db_name) VALUES (?, ?)", 
-                      ("admin", "northwind"))
     conn.commit()
     conn.close()
 
 def get_all_users():
-    return ["admin", "sales_user", "analyst"] # 可扩展为从数据库查询
+    return ["admin", "sales_manager", "analyst"]
 
 def get_all_databases_metadata():
     conn = sqlite3.connect(MGMT_DB_PATH)

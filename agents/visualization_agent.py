@@ -31,7 +31,11 @@ class VisualizationAgent:
         - Input Data: Use the provided 'data_table_markdown' to create a pandas DataFrame within the code.
         - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
         - Streamlit Integration: Use 'st.pyplot(plt)' or 'st.plotly_chart(fig)' to render the charts.
-
+        - CRITICAL: Never use 'with plt' or 'with sns'. Modules are not context managers.
+        - Use standard plotting calls like 'plt.figure()' and 'plt.plot()'.
+        - Do not use 'with plt.subplots()' unless you assign it to variables like 'fig, ax = plt.subplots()'.
+        - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
+        
 CRITICAL INSTRUCTIONS:
             1. DATA PARSING: Use `io.StringIO` and `pd.read_table`. 
                To handle Markdown tables correctly, follow this pattern:

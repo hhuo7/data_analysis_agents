@@ -41,8 +41,9 @@ def init_mgmt_db():
 
     # 初始化演示数据
     cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('admin', 'admin')")
-    cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('analyst_joe', 'user')")
-    
+    cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('analyst', 'user')")
+    cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('manager', 'user')")  
+
     conn.commit()
     conn.close()
 

@@ -80,7 +80,7 @@ with tab_main:
         db_path = allowed_dbs[db_name]
         
         st.divider()
-        st.markdown("### 🤖 Tandem Agent Analysis")
+        st.markdown("### Agent Analysis")
         
         query = st.text_input("Enter Analysis Query", placeholder="e.g., Analyze the monthly sales growth...")
         
@@ -129,10 +129,21 @@ with tab_main:
                 clean_code = res['viz_code'].replace("```python", "").replace("```", "")
                 exec(clean_code, exec_env)
 
-                if plt.get_fignums():
+                # Display all figures
+                fig_nums = plt.get_fignums()
+                if fig_nums:
+                    cols = st.columns(len(fig_nums)) if len(fig_nums) > 1 else [st]
+                    for i, fig_num in enumerate(fig_nums):
+                        plt.figure(fig_num)
+                        with cols[i % len(cols)]:
+                            st.pyplot(plt.gcf())
+                    
+                    # Save the last figure for PDF
                     buf = io.BytesIO()
                     plt.gcf().savefig(buf, format="png", bbox_inches='tight', dpi=120)
                     st.session_state['last_plot_buf'] = buf
+                else:
+                    st.warning("No visualizations were generated.")
             except Exception as e:
                 st.error(f"Visualization Execution Error: {e}")
             

@@ -24,27 +24,41 @@ class VisualizationAgent:
         2. Color Palette: Use professional "Corporate" colors (e.g., Deep Blues, Slate Greys, muted Greens).
         3. Clarity: Every chart MUST have a clear Title, X/Y Axis Labels, and a Legend if multiple series exist.
         4. Resolution: Set 'dpi=120' for Matplotlib figures.
-        5. Multiple Charts: If the analysis suggests multiple charts, generate code for all of them using subplots or separate figures.
+        5. Size: Set figure size to (8, 5) or smaller for better fit in the interface.
+        6. Multiple Charts: If the analysis suggests multiple charts, generate code for all of them using subplots or separate figures, and display each with st.pyplot(plt) or st.plotly_chart(fig).
 
         ### TECHNICAL CONSTRAINTS:
         - Input Data: Use the provided 'data_table_markdown' to create a pandas DataFrame within the code.
         - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
         - Streamlit Integration: Use 'st.pyplot(plt)' or 'st.plotly_chart(fig)' to render the charts.
 
-        CRITICAL INSTRUCTIONS:
-            1. DATA PARSING: Use `io.StringIO` and `pd.read_table(sep="|")` to convert the markdown table into a DataFrame. 
-            Example:
-            import io
-            data = \"\"\"{{markdown_table}}\"\"\"
-            df = pd.read_table(io.StringIO(data), sep="|").iloc[1:-1, 1:-1]
-            df.columns = df.columns.str.strip()
-            df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+CRITICAL INSTRUCTIONS:
+            1. DATA PARSING: Use `io.StringIO` and `pd.read_table`. 
+               To handle Markdown tables correctly, follow this pattern:
+               
+               import io
+               import pandas as pd
+               
+               data = \"\"\"{{markdown_table}}\"\"\"
+               # Remove leading/trailing whitespace from the markdown string
+               data = data.strip()
+               
+               # Read the table, filtering out empty columns caused by leading/trailing pipes
+               df = pd.read_table(io.StringIO(data), sep="|", skipinitialspace=True)
+               df = df.dropna(axis=1, how='all').iloc[1:] # Drop empty cols and the '---' separator row
+               
+               # Clean column names and data
+               df.columns = [c.strip() for c in df.columns if 'Unnamed' not in c]
+               df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
 
             2. ACCURACY: Do not manually type out data points. Always use the DataFrame created from the source text.
             3. ROBUSTNESS: If a bracket or parenthesis is opened, it MUST be closed.
             4. CLEANUP: Use plt.close('all') before starting a new plot.
-        """
+            5. For multiple charts: If creating multiple figures, call st.pyplot(plt) after each figure is complete, and use plt.figure() to start a new one.
 
+                
+        Generate the Python code now.
+        """
         # Contextualizing the prompt with the analysis and user hints
         human_message = f"""
         Analysis Summary: {analysis_report.executive_summary}
@@ -54,10 +68,8 @@ class VisualizationAgent:
         User Preferences:
         - Desired Chart Type: {user_chart_preference}
         - Visual Hints: {user_hint}
-        
-        Generate the Python code now.
         """
-
+        
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             ("human", human_message)

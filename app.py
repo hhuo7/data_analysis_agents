@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import markdown2
+import textwrap
 from xhtml2pdf import pisa
 from dotenv import load_dotenv
 
@@ -22,7 +23,7 @@ if not os.getenv("OPENAI_API_KEY"):
     st.stop()
 
 manager.init_mgmt_db()
-st.set_page_config(page_title="AI BI Platform", layout="wide")
+st.set_page_config(page_title="Data Analysis Platform", layout="wide")
 
 # 2. DYNAMIC PARAMETER MAPPING (Style Config)
 STYLE_CONFIG = {
@@ -57,7 +58,7 @@ def create_styled_pdf(analysis_report, plot_buffers):
     images_html = ""
     for buf in plot_buffers:
         buf.seek(0)
-        img_b64 = base64.b64encode(buf.read()).decode('utf-8')
+        img_b64 = base64.b64encode(buf.read()).decode("utf-8")
         images_html += f'<div class="chart"><img src="data:image/png;base64,{img_b64}" /></div>'
 
     summary_html = markdown2.markdown(analysis_report.executive_summary)
@@ -96,19 +97,21 @@ def create_styled_pdf(analysis_report, plot_buffers):
 
 # 4. SIDEBAR & ACCESS CONTROL
 with st.sidebar:
-    st.title("🛡️ BI Access Control")
+    st.title("🛡️ Access Control")
     user_role = st.selectbox("Current User Session", manager.get_all_users())
     allowed_dbs = manager.get_allowed_databases(user_role)
-    
+
     st.divider()
     with st.expander("➕ Register New Database"):
         up_file = st.file_uploader("Upload SQLite File", type=["sqlite", "db"])
         up_name = st.text_input("Database Nickname (e.g., Sales_2024)")
         if st.button("Upload and Register"):
             if up_file and up_name:
-                if not os.path.exists("data"): os.makedirs("data")
+                if not os.path.exists("data"):
+                    os.makedirs("data")
                 path = f"data/{up_file.name}"
-                with open(path, "wb") as f: f.write(up_file.getbuffer())
+                with open(path, "wb") as f:
+                    f.write(up_file.getbuffer())
                 manager.add_database_to_mgmt(up_name, path, user_role)
                 st.success(f"Registered {up_name} successfully!")
                 st.rerun()
@@ -120,100 +123,139 @@ with tab_main:
     if not allowed_dbs:
         st.warning("No databases assigned to your profile. Contact your administrator.")
     else:
-        # Layout for Query Inputs
         db_name = st.selectbox("Select Target Database", list(allowed_dbs.keys()))
         db_path = allowed_dbs[db_name]
-        query = st.text_area("What would you like to analyze?", placeholder="e.g., Show total sales volume by country")
-        
+        query = st.text_area(
+            "What would you like to analyze?",
+            placeholder="e.g., Show total sales volume by country"
+        )
+
         selected_theme = st.selectbox("Report Visual Theme", list(STYLE_CONFIG.keys()))
 
         if st.button("🚀 Execute AI Workflow", use_container_width=True) and query:
             with st.spinner(f"AI Agents are analyzing {db_name}..."):
                 bi_app = create_bi_workflow()
-                res = bi_app.invoke({
-                    "user_query": query, 
-                    "db_uri": db_path, 
-                    "user_role": user_role,
-                    "errors": []
-                })
-                
-                if res.get("errors"): 
+                res = bi_app.invoke(
+                    {
+                        "user_query": query,
+                        "db_uri": db_path,
+                        "user_role": user_role,
+                        "errors": [],
+                    }
+                )
+
+                if res.get("errors"):
                     st.error(f"Workflow Error: {res['errors']}")
-                else: 
-                    st.session_state['workflow_result'] = res
+                else:
+                    st.session_state["workflow_result"] = res
 
         # 6. DISPLAY RESULTS
-        if 'workflow_result' in st.session_state:
-            res = st.session_state['workflow_result']
-            report = res['analysis_report']
-            
+        if "workflow_result" in st.session_state:
+            res = st.session_state["workflow_result"]
+            report = res["analysis_report"]
+
             st.divider()
             st.subheader("📝 Executive Summary")
             st.info(report.executive_summary)
-            
+
             with st.expander("📂 View Source Data Table"):
                 st.markdown(report.data_table_markdown)
-            
+
             st.subheader("📈 Visual Analytics")
             all_bufs = []
+
             try:
                 # Clear Plot State
-                plt.close('all')
-                
+                plt.close("all")
+
                 # Fetch Config for Mapping
                 cfg = STYLE_CONFIG[selected_theme]
-                
+
                 # Build Style Preamble (Forces the Theme)
-                style_preamble = f"""
-import matplotlib.pyplot as plt
+                style_preamble = f"""import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import io
 plt.style.use('{cfg['plt_style']}')
 sns.set_palette('{cfg['sns_palette']}')
 sns.set_context('{cfg['context']}')
-{cfg['extra_code']}
-"""
+{cfg['extra_code']}"""
+
                 # Prepare Execution Environment
                 exec_env = {
-                    "plt": plt, "sns": sns, "pd": pd, "st": st, "px": px, "io": io,
-                    "np": __import__('numpy')
+                    "plt": plt,
+                    "sns": sns,
+                    "pd": pd,
+                    "px": px,
+                    "io": io,
+                    "np": __import__("numpy"),
                 }
-                
+
                 # Clean AI Code and Inject Style
-                raw_ai_code = res['viz_code'].replace("```python", "").replace("```", "").strip()
+                raw_ai_code = (
+                    res["viz_code"]
+                    .replace("```python", "")
+                    .replace("```", "")
+                    .strip()
+                )
+
                 # Remove AI's own style calls to prevent override
-                cleaned_ai_code = re.sub(r"plt\.style\.use\(.*\)", "", raw_ai_code)
-                # Remove invalid context manager usage
-                cleaned_ai_code = '\n'.join([line for line in cleaned_ai_code.split('\n') if 'with plt' not in line and 'with sns' not in line])
+                cleaned_ai_code = re.sub(r"plt\.style\.use$.*$", "", raw_ai_code)
+
+                # Remove plt.show() calls as they cause warnings in non-interactive backend
+                cleaned_ai_code = re.sub(r"plt\.show\(\)", "", cleaned_ai_code)
+
+                # Remove obvious invalid context-manager usage lines
+                cleaned_ai_code = "\n".join(
+                    [
+                        line
+                        for line in cleaned_ai_code.split("\n")
+                        if not line.strip().startswith("with plt")
+                        and not line.strip().startswith("with sns")
+                        and not line.strip().startswith("with px")
+                    ]
+                )
+
                 final_exec_code = style_preamble + "\n" + cleaned_ai_code
-                
+
                 # Execute Visualizer Code
                 try:
                     exec(final_exec_code, exec_env)
-                except (TypeError, ValueError) as e:
-                    if "'module' object does not support the context manager protocol" in str(e) or "cannot convert float NaN to integer" in str(e):
-                        st.info("Visualization could not be generated due to code issues. Showing analysis results only.")
+                except (TypeError, ValueError, IndentationError) as e:
+                    if (
+                        "'module' object does not support the context manager protocol" in str(e)
+                        or "cannot convert float NaN to integer" in str(e)
+                        or "unexpected indent" in str(e)
+                        or "could not convert string to float" in str(e)
+                    ):
+                        st.info(
+                            "Visualization could not be generated due to code issues. "
+                            "Showing analysis results only."
+                        )
                     else:
                         raise
 
-                # Capture Matplotlib Figures
+                # Capture Matplotlib Figures for PDF export and display
                 fig_nums = plt.get_fignums()
                 if fig_nums:
-                    cols = st.columns(len(fig_nums)) if len(fig_nums) > 1 else [st]
+                    cols = st.columns(len(fig_nums)) if len(fig_nums) > 1 else None
+
                     for i, num in enumerate(fig_nums):
                         fig = plt.figure(num)
                         if fig.get_axes():
-                            with cols[i % len(cols)]: 
+                            if cols:
+                                cols[i % len(cols)].pyplot(fig)
+                            else:
                                 st.pyplot(fig)
-                            
+
                             buf = io.BytesIO()
-                            fig.savefig(buf, format="png", bbox_inches='tight', dpi=150)
+                            fig.savefig(buf, format="png", bbox_inches="tight", dpi=150)
                             all_bufs.append(buf)
-                    st.session_state['pdf_bufs'] = all_bufs
+
+                    st.session_state["pdf_bufs"] = all_bufs
                 else:
                     st.info("The AI generated a textual insight or non-Matplotlib visualization.")
-                
+
                 with st.expander("🛠️ View Internal Analysis Logic"):
                     st.code(final_exec_code, language="python")
 
@@ -221,14 +263,14 @@ sns.set_context('{cfg['context']}')
                 st.error(f"Visualization Execution Error: {e}")
 
             # 7. DOWNLOAD SECTION
-            if 'pdf_bufs' in st.session_state and st.session_state['pdf_bufs']:
-                pdf_data = create_styled_pdf(report, st.session_state['pdf_bufs'])
+            if "pdf_bufs" in st.session_state and st.session_state["pdf_bufs"]:
+                pdf_data = create_styled_pdf(report, st.session_state["pdf_bufs"])
                 st.download_button(
                     label="📥 Download Full PDF Report",
                     data=pdf_data,
-                    file_name=f"BI_Report_{db_name}.pdf",
+                    file_name=f"DA_Report_{db_name}.pdf",
                     mime="application/pdf",
-                    use_container_width=True
+                    use_container_width=True,
                 )
 
 # 8. ADMIN TAB
@@ -236,13 +278,15 @@ with tab_admin:
     if user_role == "admin":
         st.subheader("User Permissions Management")
         all_users = manager.get_all_users()
-        target = st.selectbox("Select User to Edit", [u for u in all_users if u != 'admin'])
-        
+        target = st.selectbox("Select User to Edit", [u for u in all_users if u != "admin"])
+
         available_dbs = manager.get_all_databases_metadata()
         current_perms = list(manager.get_allowed_databases(target).keys())
-        
-        new_perms = st.multiselect("Assign Database Access", options=available_dbs, default=current_perms)
-        
+
+        new_perms = st.multiselect(
+            "Assign Database Access", options=available_dbs, default=current_perms
+        )
+
         if st.button("Update Permissions"):
             manager.update_user_permissions(target, new_perms)
             st.success(f"Permissions for {target} updated successfully.")

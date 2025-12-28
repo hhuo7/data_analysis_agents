@@ -20,7 +20,7 @@ class VisualizationAgent:
         ### TECHNICAL CONSTRAINTS:
         - Input Data: Use the provided 'data_table_markdown' to create a pandas DataFrame within the code.
         - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
-        - Streamlit Integration: Use 'st.pyplot(plt)' or 'st.plotly_chart(fig)' to render the charts.
+
         - CRITICAL: NEVER use 'with plt' or 'with sns' or any 'with module:'. Modules are NOT context managers and will cause errors. Do NOT use any 'with' statements involving plt or sns. NEVER write 'with plt:' or 'with sns:' - this is INVALID and will fail.
         - Use standard plotting calls like 'plt.figure()' and 'plt.plot()'.
         - Do not use 'with plt.subplots()' unless you assign it to variables like 'fig, ax = plt.subplots()'.

@@ -30,6 +30,19 @@ class VisualizationAgent:
         - Input Data: Use the provided 'data_table_markdown' to create a pandas DataFrame within the code.
         - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
         - Streamlit Integration: Use 'st.pyplot(plt)' or 'st.plotly_chart(fig)' to render the charts.
+
+        CRITICAL INSTRUCTIONS:
+            1. DATA PARSING: Use `io.StringIO` and `pd.read_table(sep="|")` to convert the markdown table into a DataFrame. 
+            Example:
+            import io
+            data = \"\"\"{{markdown_table}}\"\"\"
+            df = pd.read_table(io.StringIO(data), sep="|").iloc[1:-1, 1:-1]
+            df.columns = df.columns.str.strip()
+            df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+
+            2. ACCURACY: Do not manually type out data points. Always use the DataFrame created from the source text.
+            3. ROBUSTNESS: If a bracket or parenthesis is opened, it MUST be closed.
+            4. CLEANUP: Use plt.close('all') before starting a new plot.
         """
 
         # Contextualizing the prompt with the analysis and user hints

@@ -18,9 +18,7 @@ def call_visualization_node(state: AgentState):
     viz_agent = VisualizationAgent() # Initialize inside the node
     try:
         code = viz_agent.generate_viz_code(
-            state["analysis_report"], 
-            state.get("chart_preference", "Auto"), 
-            state.get("viz_hint", "")
+            state["analysis_report"]
         )
         return {"viz_code": code}
     except Exception as e:

@@ -132,7 +132,7 @@ with tab_main:
 
         selected_theme = st.selectbox("Report Visual Theme", list(STYLE_CONFIG.keys()))
 
-        if st.button("🚀 Execute AI Workflow", use_container_width=True) and query:
+        if st.button("🚀 Execute Workflow", use_container_width=True) and query:
             with st.spinner(f"AI Agents are analyzing {db_name}..."):
                 bi_app = create_bi_workflow()
                 res = bi_app.invoke(
@@ -161,7 +161,7 @@ with tab_main:
             with st.expander("📂 View Source Data Table"):
                 st.markdown(report.data_table_markdown)
 
-            st.subheader("📈 Visual Analytics")
+            st.subheader("📈 Visualizations")
             all_bufs = []
 
             try:

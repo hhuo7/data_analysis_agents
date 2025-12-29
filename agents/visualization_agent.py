@@ -74,7 +74,14 @@ class VisualizationAgent:
             response = chain.invoke({})
             content = response.content
             if 'with plt' not in content and 'with sns' not in content:
+                # Simple guardrail: check for dangerous code patterns
+                dangerous_patterns = ['os.', 'subprocess', 'eval(', 'exec(', '__import__', 'open(', 'file']
+                if any(pattern in content for pattern in dangerous_patterns):
+                    continue  # Try again
                 return content
         
-        # If all attempts fail, return the last one anyway
-        return content
+        # If all attempts fail, return the last one anyway (with guardrail check)
+        if not any(pattern in content for pattern in dangerous_patterns):
+            return content
+        else:
+            return "# Guardrail triggered: Potentially unsafe code detected\nplt.figure()\nplt.text(0.5, 0.5, 'Visualization blocked for safety')\nst.pyplot(plt)"

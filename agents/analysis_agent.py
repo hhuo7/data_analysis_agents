@@ -26,6 +26,13 @@ class DataAnalysisAgent:
     def run_analysis(self, user_query, db_uri):
         schema = self.get_schema(db_uri)
         
+        # Simple guardrail: basic input validation
+        if len(user_query) > 1000:
+            raise ValueError("Query too long")
+        dangerous_keywords = ['drop', 'delete', 'update', 'insert', 'alter']
+        if any(word in user_query.lower() for word in dangerous_keywords):
+            raise ValueError("Query contains potentially dangerous keywords")
+        
         system_prompt = """
         You are an expert Data Analyst Agent for SQLite.
         Do not make up any data; only use what you can extract via SQL queries.

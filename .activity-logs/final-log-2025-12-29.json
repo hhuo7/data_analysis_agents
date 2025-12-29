@@ -1,0 +1,25 @@
+{
+  "date": "2025-12-29",
+  "summary": "- app.py: 51 changes\n- README.md: 31 changes\n- agents\\visualization_agent.py: 23 changes\n- agents\\__pycache__\\visualization_agent.cpython-313.pyc: 7 changes\n- agents\\workflow.py: 4 changes\n- requirements.txt: 4 changes\n- .streakagent: 3 changes\n- agents\\__pycache__\\workflow.cpython-313.pyc: 2 changes\n- .pytest_cache\\v\\cache\\stepwise: 1 changes\n- .pytest_cache\\v\\cache\\nodeids: 1 changes",
+  "statistics": {
+    "totalFiles": 10,
+    "totalChanges": 127,
+    "mostEditedFile": "app.py",
+    "workDuration": "12h 0m",
+    "fileTypes": {
+      "unknown": 5,
+      "py": 78,
+      "pyc": 9,
+      "txt": 4,
+      "md": 31
+    },
+    "peakActivityHour": "22:00-23:00",
+    "totalLinesChanged": 18092
+  },
+  "projectDetails": {
+    "branch": "agents",
+    "commitHash": "5526790",
+    "remote": "git@github.com:hhuo7/da_dv_agents.git",
+    "name": "d:\\da_agents"
+  }
+}

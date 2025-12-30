@@ -53,7 +53,7 @@ STYLE_CONFIG = {
     }
 }
 
-# 3. PDF GENERATION LOGIC
+# 3. PDF GENERATION 
 def create_styled_pdf(analysis_report, plot_buffers):
     images_html = ""
     for buf in plot_buffers:
@@ -115,6 +115,11 @@ with st.sidebar:
                 manager.add_database_to_mgmt(up_name, path, user_role)
                 st.success(f"Registered {up_name} successfully!")
                 st.rerun()
+            else:
+                if not up_file:
+                    st.error("Please upload a SQLite file.")
+                if not up_name:
+                    st.error("Please enter a database nickname.")
 
 # 5. MAIN UI TABS
 tab_main, tab_admin = st.tabs(["📊 Analysis Dashboard", "🛠️ System Administration"])
@@ -127,7 +132,7 @@ with tab_main:
         db_path = allowed_dbs[db_name]
         query = st.text_area(
             "What would you like to analyze?",
-            placeholder="e.g., Show total sales volume by country"
+            placeholder="e.g., Show total sales volume by country. Please be specific in your request."
         )
 
         selected_theme = st.selectbox("Report Visual Theme", list(STYLE_CONFIG.keys()))
@@ -204,6 +209,13 @@ sns.set_context('{cfg['context']}')
 
                 # Remove plt.show() calls as they cause warnings in non-interactive backend
                 cleaned_ai_code = re.sub(r"plt\.show\(\)", "", cleaned_ai_code)
+
+                # Remove percentage sizes that cause warnings
+                cleaned_ai_code = re.sub(r"'(\d+)%'", r'\1', cleaned_ai_code)
+                cleaned_ai_code = re.sub(r'"(\d+)%', r'\1', cleaned_ai_code)
+
+                # Replace deprecated applymap with map
+                cleaned_ai_code = cleaned_ai_code.replace('.applymap(', '.map(')
 
                 # Remove obvious invalid context-manager usage lines
                 cleaned_ai_code = "\n".join(

@@ -49,7 +49,9 @@ streamlit run app.py
   - `workflow.py`: LangGraph workflow orchestration
   - `models.py`: Pydantic models and state definitions
 - `manager.py`: Database and user management
-- `test_agents.py`: Unit tests
+- `tests/`:
+   - `test_agents.py`: Unit tests
+   - `test_integration.py`: Integration tests
 
 ## Getting Started
 
@@ -83,6 +85,3 @@ streamlit run app.py
 - "Show product performance metrics"
 - "Identify sales trends over time"
 
-## License
-
-MIT License

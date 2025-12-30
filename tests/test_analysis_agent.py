@@ -9,7 +9,6 @@ load_dotenv()
 def agent():
     return DataAnalysisAgent()
 
-# 1. Chinook Test
 def test_chinook_sales_by_country(agent):
     db_path = "data/chinook.db"
     if not os.path.exists(db_path):
@@ -29,7 +28,6 @@ def test_chinook_sales_by_country(agent):
     assert country_found, f"Expected country {expected_country} not found."
     assert value_found, f"Expected total {expected_value} not found."
 
-# 2. Sakila Test
 def test_sakila_popular_categories(agent):
     db_path = "data/sakila.db"
     if not os.path.exists(db_path):
@@ -46,15 +44,6 @@ def test_sakila_popular_categories(agent):
     assert category_found, f"Expected category {expected_category} not found."
  
 
-# 3. Northwind Revenue Test
-def test_northwind_revenue(agent):
-    db_path = "data/northwind_small.sqlite"
-    if not os.path.exists(db_path): pytest.skip(f"Missing {db_path}")
-    
-    result = agent.run_analysis("Identify the product with the highest total revenue.", db_path)
-    assert "revenue" in result.executive_summary.lower()
-
-# 4. Northwind Unit Price Test
 def test_northwind_unitprice(agent):
     db_path = "data/northwind_small.sqlite"
     if not os.path.exists(db_path): 

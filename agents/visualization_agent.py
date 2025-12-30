@@ -25,6 +25,7 @@ class VisualizationAgent:
         - Use standard plotting calls like 'plt.figure()' and 'plt.plot()'.
         - Do not use 'with plt.subplots()' unless you assign it to variables like 'fig, ax = plt.subplots()'.
         - NEVER use context managers for matplotlib or seaborn modules.
+        - Use numeric values for sizes (e.g., figsize=(10,6)), not percentages or strings.
         - Execution: Your output must be ONLY a block of Python code inside ```python ``` markers.
         
         CRITICAL INSTRUCTIONS:

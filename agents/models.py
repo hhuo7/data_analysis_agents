@@ -17,7 +17,7 @@ class AnalysisResponse(BaseModel):
     data_table_markdown: str = Field(description="A markdown-formatted summary table of the data")
     visualizations: List[ChartSpecification] = Field(description="A list of recommended visualizations")
 
-# --- 2. State Definition (for the LangGraph workflow) ---
+# --- 2. State Definition 
 
 class AgentState(TypedDict):
     """

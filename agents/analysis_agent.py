@@ -23,7 +23,7 @@ class DataAnalysisAgent:
         conn.close()
         return schema_info
 
-    def run_analysis(self, user_query, db_uri):
+    def run_analysis(self, user_query, db_uri, state: dict = None):
         schema = self.get_schema(db_uri)
         
         # Simple guardrail: basic input validation

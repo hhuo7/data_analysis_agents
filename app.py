@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import markdown2
-import textwrap
 from xhtml2pdf import pisa
 from dotenv import load_dotenv
 

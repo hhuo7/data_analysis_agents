@@ -31,9 +31,9 @@ class AgentState(TypedDict):
 
     # Output from the Analysis Agent
     analysis_report: Optional[AnalysisResponse]
-
-    # Output from the Visualization Agent
     viz_code: Optional[str]  # Stores the generated Python plotting code
 
-    # Error tracking (for automated test evaluation)
+    # Feedback and Reflection Loop Tracking
     errors: List[str]
+    retry_count: int
+    feedback: Optional[str]

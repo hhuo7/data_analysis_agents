@@ -1,72 +1,98 @@
 # Demo Slides: AI Agents for Data Analysis Platform
 
-## Slide 1: Title Slide
+## Slide 1: Title & Overview
 **AI Agents for Data Analysis and Visualization**
 
-- A Streamlit-based Business Intelligence platform
-- Powered by AI agents for automated data analysis
-- Presented by: [Your Name]
-- Date: December 29, 2025
+- **What It Is**: A Streamlit app that uses two AI agents to analyze data and create visualizations automatically.
+- **Why It Matters**: Makes data analysis accessible – users ask questions in plain English, get insights and charts instantly.
+- **Tech Stack**: Python, Streamlit (UI), LangChain (AI), OpenAI GPT (LLMs), SQLite (data).
+- **Demo Goal**: Show how agents work together for fast, accurate BI.
 
 ---
 
-## Slide 2: Overview
-**What is this platform?**
+## Slide 2: System Structure
+**How the Platform is Built**
 
-- **Purpose**: Automate data analysis and visualization using AI
-- **Key Features**:
-  - Natural language queries for data analysis
-  - AI-generated visualizations and reports
-  - Role-based access control for databases
-  - PDF export of complete reports
-- **Technology Stack**: Python, Streamlit, LangChain, OpenAI GPT, SQLite
+- **Frontend (UI)**: Streamlit app – user selects DB, types query, sees results.
+- **Agents (Core Logic)**:
+  - Analysis Agent: Reads DB schema, runs SQL, summarizes data.
+  - Visualization Agent: Generates Python code for charts (Matplotlib/Seaborn).
+- **Workflow**: LangGraph connects agents – analysis output feeds visualization.
+- **Management**: User roles restrict DB access; easy DB upload via UI.
+- **Data**: User-uploaded SQLite files; results exported as PDFs.
 
----
-
-## Slide 3: System Architecture
-**High-Level Structure**
-
-- **Frontend**: Streamlit web app (app.py)
-- **Backend Agents**:
-  - Analysis Agent: Processes queries, generates summaries
-  - Visualization Agent: Creates plotting code
-  - Workflow Orchestrator: LangGraph for agent coordination
-- **Management Layer**: User and database permissions (manager.py)
-- **Data Layer**: SQLite databases stored in /data folder
+**Simple Flow**: Query → Analyze → Visualize → Display
 
 ---
 
-## Slide 4: Workflow Diagram
-**How It Works**
+## Slide 3: Key Functions
+**What Users Can Do**
 
-1. User selects database and enters natural language query
-2. Analysis Agent queries database and generates structured report
-3. Visualization Agent creates Python plotting code
-4. Streamlit displays results and allows PDF export
+- **Natural Language Queries**: "Show sales by country" – agents handle the rest.
+- **Automated Analysis**: Extracts insights, tables, and viz recommendations.
+- **Custom Visualizations**: Charts in company styles (e.g., professional, dark mode).
+- **User Management**: Admins assign DB access; secure per-user restrictions.
+- **Easy DB Integration**: Upload SQLite files, register instantly.
+- **Export**: Download full PDF reports with summaries and charts.
 
-**Agent State Flow**:
-User Query → Analysis Report → Visualization Code → Final Output
-
----
-
-## Slide 5: Design Decisions
-**Why These Choices?**
-
-- **AI Agents**: Automates complex analysis tasks, reduces manual coding
-- **LangGraph**: Provides structured workflow management for multi-agent systems
-- **Pydantic Models**: Ensures type safety and structured outputs from agents
-- **Streamlit**: Rapid web app development, perfect for data apps
-- **SQLite for Management**: Lightweight, file-based database for user permissions
-- **Style Configurations**: Allows customizable visual themes for reports
+**Example**: Upload Chinook DB, ask "Top-selling artists" → Get summary, table, bar chart.
 
 ---
 
-## Slide 6: Key Components
-**Core Files and Modules**
+## Slide 4: Design Decisions
+**Why We Built It This Way**
 
-- `app.py`: Main UI with tabs for analysis and admin
-- `agents/workflow.py`: LangGraph workflow definition
-- `agents/analysis_agent.py`: Data querying and summarization
+- **Agent-Based**: Separated concerns (analysis vs. viz) for modularity and testing.
+- **LangChain/LangGraph**: Handles LLM prompts and agent chaining reliably.
+- **Streamlit for UI**: Quick to build, interactive – no complex web dev needed.
+- **SQLite Focus**: Simple, file-based DBs for demos; scalable to other sources.
+- **Guardrails**: Blocks unsafe code/SQL; retries LLM for clean output.
+- **Testing**: Unit tests for agents, integration tests for workflow – ensures accuracy.
+
+**Trade-Off**: Chose simplicity over advanced features (e.g., no real-time DBs) for quick wins.
+
+---
+
+## Slide 5: Future Improvements
+**What's Next?**
+
+- **Expand Data Sources**: Support CSV, APIs, or cloud DBs (e.g., PostgreSQL).
+- **Advanced Viz**: Add interactive charts (Plotly) or AI-suggested custom styles.
+- **Multi-Agent Scaling**: More agents (e.g., for data cleaning or ML predictions).
+- **Performance**: Cache results, optimize LLM calls for faster responses.
+- **Security**: Encrypt DBs, add audit logs for user actions.
+- **UI Enhancements**: Mobile-friendly, CLI mode, or API for integrations.
+
+**Vision**: Turn this into a full BI tool for non-technical users.
+
+---
+
+## Slide 6: Quality Assurance & Evaluation
+**Ensuring Reliability and Safety**
+
+- **Automated Testing**: 3+ unit tests per agent (e.g., accuracy checks on real data like Chinook DB); integration tests for full workflow.
+- **Guardrails**: 
+  - Analysis Agent: Blocks dangerous SQL keywords (e.g., 'DROP', 'DELETE'); validates query length.
+  - Visualization Agent: Prevents unsafe code (e.g., 'os.system'); retries LLM for clean output; no 'with plt' context managers.
+- **Evaluation Examples**: Tests verify correct summaries, tables, and charts; mock LLMs for consistent results.
+- **Error Handling**: Fallbacks for failed viz (e.g., text-only insights); user-friendly error messages.
+
+**Result**: High accuracy, secure execution – ready for production use.
+
+---
+
+## Slide 7: Demo Highlights & Q&A
+**Live Demo Walkthrough**
+
+- Upload a sample DB (e.g., Chinook music store).
+- Run a query: "Total sales by country."
+- See: Analysis summary, data table, generated bar chart.
+- Export PDF report.
+- Show user permissions and testing.
+
+**Key Takeaways**: Agents automate complex tasks; easy to extend; ready for production.
+
+Questions?
 - `agents/visualization_agent.py`: Chart generation logic
 - `agents/models.py`: Pydantic schemas for agent outputs
 - `manager.py`: Database and user management functions

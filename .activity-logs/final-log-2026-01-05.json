@@ -1,20 +1,22 @@
 {
   "date": "2026-01-05",
-  "summary": "- README.md: 2 changes",
+  "summary": "- README.md: 7 changes\n- agents\\analysis_agent.py: 1 changes\n- agents\\models.py: 1 changes\n- agents\\visualization_agent.py: 1 changes\n- agents\\workflow.py: 1 changes\n- tests\\test_analysis_agent.py: 1 changes\n- tests\\test_integration.py: 1 changes\n- tests\\test_visualization_agent.py: 1 changes\n- app.py: 1 changes\n- management.db: 1 changes\n- demo_slides.md: 1 changes",
   "statistics": {
-    "totalFiles": 1,
-    "totalChanges": 2,
+    "totalFiles": 11,
+    "totalChanges": 17,
     "mostEditedFile": "README.md",
-    "workDuration": "0h 0m",
+    "workDuration": "1h 22m",
     "fileTypes": {
-      "md": 2
+      "md": 8,
+      "py": 8,
+      "db": 1
     },
     "peakActivityHour": "11:00-12:00",
-    "totalLinesChanged": 180
+    "totalLinesChanged": 1639
   },
   "projectDetails": {
     "branch": "final",
-    "commitHash": "8081b73",
+    "commitHash": "721b489",
     "remote": "git@github.com:hhuo7/da_dv_agents.git",
     "name": "d:\\da_dv_agents-agents"
   }

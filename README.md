@@ -59,8 +59,9 @@ python -m pytest tests/test_integration.py -v
   - `models.py`: Pydantic models and state definitions
 - `manager.py`: Database and user management
 - `tests/`:
-   - `test_agents.py`: Unit tests
-   - `test_integration.py`: Integration tests
+   - `test_analysis_agent.py`
+   - `test_visualization_agent.py`
+   - `test_integration.py`
 
 ## Getting Started
 

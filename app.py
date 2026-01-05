@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import markdown2
-from xhtml2pdf import pisa
+from fpdf import FPDF
 from dotenv import load_dotenv
 
 import manager
@@ -52,45 +52,57 @@ STYLE_CONFIG = {
 
 
 def create_styled_pdf(analysis_report, plot_buffers):
-    images_html = ""
-    for buf in plot_buffers:
-        buf.seek(0)
-        img_b64 = base64.b64encode(buf.read()).decode("utf-8")
-        images_html += f'<div class="chart"><img src="data:image/png;base64,{img_b64}" /></div>'
-
-    summary_html = markdown2.markdown(analysis_report.executive_summary)
-    table_html = markdown2.markdown(analysis_report.data_table_markdown, extras=["tables"])
-
-    html_template = f"""
-    <html>
-    <head>
-        <style>
-            @page {{ size: A4; margin: 1.5cm; }}
-            body {{ font-family: Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; }}
-            h1 {{ text-align: center; color: #1a4e8a; border-bottom: 2px solid #1a4e8a; padding-bottom: 10px; }}
-            h2 {{ color: #2c3e50; margin-top: 30px; border-left: 5px solid #1a4e8a; padding-left: 10px; background-color: #f8f9fa; }}
-            table {{ border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 9px; }}
-            th, td {{ border: 1px solid #ddd; padding: 10px; text-align: left; }}
-            th {{ background-color: #1a4e8a; color: white; font-weight: bold; }}
-            .chart {{ text-align: center; margin-top: 25px; page-break-inside: avoid; }}
-            .chart img {{ width: 100%; max-width: 500px; border: 1px solid #eee; }}
-        </style>
-    </head>
-    <body>
-        <h1>Data Analysis Report</h1>
-        <h2>1. Executive Summary</h2>
-        <div>{summary_html}</div>
-        <h2>2. Data Insights (Top Records)</h2>
-        <div class="table-container">{table_html}</div>
-        <pdf:nextpage />
-        <h2>3. Visual Analytics</h2>
-        {images_html}
-    </body>
-    </html>
     """
-    pdf_buffer = io.BytesIO()
-    pisa.CreatePDF(io.StringIO(html_template), dest=pdf_buffer)
-    return pdf_buffer.getvalue()
+    Generates a professional PDF report using fpdf2.
+    """
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+    
+    pdf.set_text_color(26, 78, 138)  # Professional Blue
+    pdf.set_font("Helvetica", "B", 24)
+    pdf.cell(0, 20, "Data Analysis Report", ln=True, align="C")
+    
+    pdf.set_draw_color(26, 78, 138)
+    pdf.set_line_width(0.5)
+    pdf.line(10, 35, 200, 35)
+    pdf.ln(10)
+    
+    pdf.set_text_color(44, 62, 80)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, "1. Executive Summary", ln=True)
+    pdf.ln(2)
+    
+    pdf.set_font("Helvetica", "", 12)
+    pdf.set_text_color(51, 51, 51)
+    summary_html = markdown2.markdown(analysis_report.executive_summary)
+    pdf.write_html(summary_html)
+    pdf.ln(10)
+    
+    pdf.set_text_color(44, 62, 80)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 10, "2. Data Insights (Top Records)", ln=True)
+    pdf.ln(2)
+    
+    pdf.set_font("Helvetica", "", 9)
+    table_html = markdown2.markdown(analysis_report.data_table_markdown, extras=["tables"])
+  
+    pdf.write_html(table_html)
+    
+    if plot_buffers:
+        pdf.add_page()
+        pdf.set_text_color(44, 62, 80)
+        pdf.set_font("Helvetica", "B", 16)
+        pdf.cell(0, 10, "3. Visual Analytics", ln=True)
+        pdf.ln(5)
+        
+        for buf in plot_buffers:
+            buf.seek(0)
+
+            pdf.image(buf, w=pdf.epw)
+            pdf.ln(10)
+            
+    return bytes(pdf.output())
 
 
 with st.sidebar:

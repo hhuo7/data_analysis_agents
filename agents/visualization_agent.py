@@ -57,7 +57,7 @@ class VisualizationAgent:
                 
         Generate the Python code now.
         """
-        # Contextualizing the prompt with the analysis and user hints
+
         human_message = f"""
         Analysis Summary: {analysis_report.executive_summary}
         Data Table (Markdown): {analysis_report.data_table_markdown}
@@ -78,10 +78,10 @@ class VisualizationAgent:
                 # Simple guardrail: check for dangerous code patterns
                 dangerous_patterns = ['os.', 'subprocess', 'eval(', 'exec(', '__import__', 'open(', 'file']
                 if any(pattern in content for pattern in dangerous_patterns):
-                    continue  # Try again
+                    continue  
                 return content
         
-        # If all attempts fail, return the last one anyway (with guardrail check)
+   
         if not any(pattern in content for pattern in dangerous_patterns):
             return content
         else:

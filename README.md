@@ -31,6 +31,15 @@ OPENAI_API_KEY=your_openai_api_key_here
 streamlit run app.py
 ```
 
+4. Run the tests:
+
+```bash
+python -m pytest tests/test_analysis_agent.py -v
+python -m pytest tests/test_visualization_agent.py -v
+python -m pytest tests/test_integration.py -v
+
+```
+
 ## Functionality
 
 1. **Login**: Select your user role from the sidebar
@@ -80,8 +89,8 @@ streamlit run app.py
 
 ### Example Queries
 
+(northwind database)
 - "Analyze customer purchase patterns"
 - "Compare revenue across different regions"
-- "Show product performance metrics"
 - "Identify sales trends over time"
 

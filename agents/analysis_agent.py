@@ -18,7 +18,7 @@ class DataAnalysisAgent:
         schema_info = ""
         for table in tables:
             table_name = table[0]
-            # Get columns
+
             cursor.execute(f"PRAGMA table_info('{table_name}');")
             columns = cursor.fetchall()
             col_desc = ", ".join([f"{col[1]} ({col[2]})" for col in columns])
@@ -37,7 +37,7 @@ class DataAnalysisAgent:
     def execute_sql(self, db_uri, sql):
         try:
             conn = sqlite3.connect(db_uri)
-            # Use pandas for easy markdown conversion and handling
+           
             df = pd.read_sql_query(sql, conn)
             conn.close()
             if df.empty:
@@ -56,12 +56,11 @@ class DataAnalysisAgent:
         if any(word in user_query.lower() for word in dangerous_keywords):
             raise ValueError("Query contains potentially dangerous keywords")
         
-        # Step 1: Generate SQL
         sql_system_prompt = """
         You are an expert SQL generator for SQLite. 
         Your task is to write a single, optimized SQL query that answers the user's request based on the provided schema.
         
-        CRITICAL RULES FOR COMPLETE ANALYSIS:
+        CRITICAL RULES:
         1. DATA EXPLORATION: Always consider all tables in the schema. If a query about "sales" can be enriched by joining "products" or "customers", do so.
         2. FULL DATA UTILIZATION: Your queries must analyze the entire available dataset (e.g., use SUM/AVG on the whole table) before limiting the output rows.
         3. AGGREGATION MANDATE: Use aggregation (SUM, COUNT, etc.) to provide high-level insights unless raw data is specifically requested.
@@ -75,10 +74,8 @@ class DataAnalysisAgent:
         sql_chain = sql_prompt | self.sql_llm
         sql_res = sql_chain.invoke({})
         
-        # Step 2: Execute SQL
         data_results = self.execute_sql(db_uri, sql_res.sql)
         
-        # Step 3: Generate Final Report
         report_system_prompt = """
 You are an expert Data Analyst Agent for SQLite. Your goal is to provide 100% accurate, aggregated insights based on ACTUAL data results.
 

@@ -74,6 +74,5 @@ def test_generate_viz_code_guardrail_blocks_dangerous_code(agent, mock_analysis_
     with patch.object(RunnableSequence, 'invoke', return_value=mock_response):
         result = agent.generate_viz_code(mock_analysis_report)
         
-        # Should return safe fallback
         assert "Visualization blocked for safety" in result
         assert "os.system" not in result

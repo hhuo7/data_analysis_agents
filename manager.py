@@ -1,18 +1,17 @@
 import sqlite3
 import os
 
-# 管理数据库路径，存储用户信息和权限
+
 MGMT_DB = "management.db"
 
 def init_mgmt_db():
     """
-    初始化管理系统：创建用户表、数据库表和权限关联表 。
-    符合 Assignment 要求：能够限制特定用户访问特定数据库。
+    Initialize the management system: create user table, database table, and permission association table.
     """
     conn = sqlite3.connect(MGMT_DB)
     cursor = conn.cursor()
 
-    # 1. 创建用户表
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             username TEXT PRIMARY KEY,
@@ -20,7 +19,7 @@ def init_mgmt_db():
         )
     """)
 
-    # 2. 创建数据库列表 (用于快速集成新库 )
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS databases (
             db_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -29,7 +28,7 @@ def init_mgmt_db():
         )
     """)
 
-    # 3. 权限表：定义用户与数据库的映射 
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS permissions (
             username TEXT,
@@ -39,7 +38,7 @@ def init_mgmt_db():
         )
     """)
 
-    # 初始化演示数据
+
     cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('admin', 'admin')")
     cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('analyst', 'user')")
     cursor.execute("INSERT OR IGNORE INTO users (username, role) VALUES ('manager', 'user')")  
@@ -49,8 +48,7 @@ def init_mgmt_db():
 
 def add_database_to_mgmt(nickname, file_path, owner):
     """
-    便捷集成逻辑 ：
-    将新的 .sqlite 文件路径存入管理系统，并默认赋予上传者权限。
+    Save the new .sqlite file path into the management system and grant permission to the uploader by default.
     """
     conn = sqlite3.connect(MGMT_DB)
     cursor = conn.cursor()
@@ -65,13 +63,13 @@ def add_database_to_mgmt(nickname, file_path, owner):
 
 def get_allowed_databases(username):
     """
-    实现用户限制 ：
-    根据当前登录角色，仅返回其有权访问的数据库路径字典。
+    Implement user restrictions:
+    Return a dictionary of database paths that the user is authorized to access based on their current role.
     """
     conn = sqlite3.connect(MGMT_DB)
     cursor = conn.cursor()
     
-    # 如果是 admin，返回所有库；否则按权限表过滤
+
     if username == 'admin':
         cursor.execute("SELECT nickname, file_path FROM databases")
     else:
@@ -96,7 +94,7 @@ def get_all_users():
 
 def update_user_permissions(username, db_nicknames):
     """
-    更新用户权限，由 Admin 在后台操作。
+    Update user permissions, operated by Admin in the background.
     """
     conn = sqlite3.connect(MGMT_DB)
     cursor = conn.cursor()

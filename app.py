@@ -11,11 +11,9 @@ import markdown2
 from xhtml2pdf import pisa
 from dotenv import load_dotenv
 
-# Internal imports
 import manager
 from agents.workflow import create_bi_workflow
 
-# 1. INITIAL SETUP
 load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     st.error("API Key missing. Please check your .env file.")
@@ -24,7 +22,7 @@ if not os.getenv("OPENAI_API_KEY"):
 manager.init_mgmt_db()
 st.set_page_config(page_title="Data Analysis Platform", layout="wide")
 
-# 2. DYNAMIC PARAMETER MAPPING (Style Config)
+
 STYLE_CONFIG = {
     "Professional Business": {
         "plt_style": "seaborn-v0_8-muted",
@@ -52,7 +50,7 @@ STYLE_CONFIG = {
     }
 }
 
-# 3. PDF GENERATION 
+
 def create_styled_pdf(analysis_report, plot_buffers):
     images_html = ""
     for buf in plot_buffers:
@@ -94,7 +92,7 @@ def create_styled_pdf(analysis_report, plot_buffers):
     pisa.CreatePDF(io.StringIO(html_template), dest=pdf_buffer)
     return pdf_buffer.getvalue()
 
-# 4. SIDEBAR & ACCESS CONTROL
+
 with st.sidebar:
     st.title("🛡️ Access Control")
     user_role = st.selectbox("Current User Session", manager.get_all_users())
@@ -120,7 +118,7 @@ with st.sidebar:
                 if not up_name:
                     st.error("Please enter a database nickname.")
 
-# 5. MAIN UI TABS
+
 tab_main, tab_admin = st.tabs(["📊 Analysis Dashboard", "🛠️ System Administration"])
 
 with tab_main:
@@ -153,7 +151,7 @@ with tab_main:
                 else:
                     st.session_state["workflow_result"] = res
 
-        # 6. DISPLAY RESULTS
+        
         if "workflow_result" in st.session_state:
             res = st.session_state["workflow_result"]
             report = res["analysis_report"]
@@ -169,13 +167,9 @@ with tab_main:
             all_bufs = []
 
             try:
-                # Clear Plot State
-                plt.close("all")
-
-                # Fetch Config for Mapping
-                cfg = STYLE_CONFIG[selected_theme]
-
-                # Build Style Preamble (Forces the Theme)
+                
+                plt.close("all")                
+                cfg = STYLE_CONFIG[selected_theme]                
                 style_preamble = f"""import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -185,7 +179,7 @@ sns.set_palette('{cfg['sns_palette']}')
 sns.set_context('{cfg['context']}')
 {cfg['extra_code']}"""
 
-                # Prepare Execution Environment
+                
                 exec_env = {
                     "plt": plt,
                     "sns": sns,
@@ -195,7 +189,7 @@ sns.set_context('{cfg['context']}')
                     "np": __import__("numpy"),
                 }
 
-                # Clean AI Code and Inject Style
+
                 raw_ai_code = (
                     res["viz_code"]
                     .replace("```python", "")
@@ -203,17 +197,14 @@ sns.set_context('{cfg['context']}')
                     .strip()
                 )
 
-                # Remove AI's own style calls to prevent override
+               
                 cleaned_ai_code = re.sub(r"plt\.style\.use$.*$", "", raw_ai_code)
-
-                # Remove plt.show() calls as they cause warnings in non-interactive backend
+             
                 cleaned_ai_code = re.sub(r"plt\.show\(\)", "", cleaned_ai_code)
 
-                # Remove percentage sizes that cause warnings
                 cleaned_ai_code = re.sub(r"'(\d+)%'", r'\1', cleaned_ai_code)
                 cleaned_ai_code = re.sub(r'"(\d+)%', r'\1', cleaned_ai_code)
 
-                # Replace deprecated applymap with map
                 cleaned_ai_code = cleaned_ai_code.replace('.applymap(', '.map(')
 
                 # Remove obvious invalid context-manager usage lines
@@ -229,7 +220,7 @@ sns.set_context('{cfg['context']}')
 
                 final_exec_code = style_preamble + "\n" + cleaned_ai_code
 
-                # Execute Visualizer Code
+               
                 try:
                     exec(final_exec_code, exec_env)
                 except (TypeError, ValueError, IndentationError) as e:
@@ -246,7 +237,7 @@ sns.set_context('{cfg['context']}')
                     else:
                         raise
 
-                # Capture Matplotlib Figures for PDF export and display
+             
                 fig_nums = plt.get_fignums()
                 if fig_nums:
                     cols = st.columns(len(fig_nums)) if len(fig_nums) > 1 else None
@@ -273,7 +264,7 @@ sns.set_context('{cfg['context']}')
             except Exception as e:
                 st.error(f"Visualization Execution Error: {e}")
 
-            # 7. DOWNLOAD SECTION
+          
             if "pdf_bufs" in st.session_state and st.session_state["pdf_bufs"]:
                 pdf_data = create_styled_pdf(report, st.session_state["pdf_bufs"])
                 st.download_button(
@@ -284,7 +275,7 @@ sns.set_context('{cfg['context']}')
                     use_container_width=True,
                 )
 
-# 8. ADMIN TAB
+
 with tab_admin:
     if user_role == "admin":
         st.subheader("User Permissions Management")
